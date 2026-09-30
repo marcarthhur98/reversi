@@ -1,5 +1,6 @@
 """Run with: python -m unittest test_streamlit.py"""
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 from streamlit.testing.v1 import AppTest
 import engine
@@ -30,8 +31,45 @@ class BrowserGameTests(unittest.TestCase):
         app.selectbox(key='level').select('Easy').run()
         app.button(key='new_game').click().run(timeout=30)
         self.assertEqual(app.session_state['human'], 'W')
-        self.assertEqual(app.session_state['depth'], 2)
+        self.assertEqual(app.session_state['difficulty'], 'Easy')
         self.assertEqual(len(app.session_state['history']), 1)
+        self.assertFalse(app.exception)
+
+    def test_difficulty_strategies(self):
+        cells = engine.initial()
+        moves = engine.legal(cells, 'B')
+        with patch('engine.random.choice', return_value=moves[-1]) as choose:
+            result = engine.computer_move(cells, 'B', 'Easy')
+            self.assertEqual((result.row, result.col), moves[-1])
+            choose.assert_called_once_with(moves)
+        # Check greedy choices against actual disc gains on varied positions.
+        turn = 'B'
+        for ply in range(30):
+            moves = engine.legal(cells, turn)
+            if not moves:
+                turn = engine.other(turn)
+                continue
+            gains = [engine.play(cells, turn, *move).count(turn) for move in moves]
+            expected = moves[gains.index(max(gains))]
+            result = engine.computer_move(cells, turn, 'Medium')
+            self.assertEqual((result.row, result.col), expected)
+            cells = engine.play(cells, turn, *moves[(ply * 7) % len(moves)])
+            turn = engine.other(turn)
+        expected = engine.best(cells, turn, 4)
+        result = engine.computer_move(cells, turn, 'Hard')
+        self.assertEqual((result.row, result.col, result.nodes),
+                         (expected.row, expected.col, expected.nodes))
+        for mode in ('Easy', 'Medium', 'Hard'):
+            result = engine.computer_move('B' * 64, 'W', mode)
+            self.assertEqual((result.row, result.col), (-1, -1))
+
+    def test_medium_game(self):
+        app = self.app()
+        app.selectbox(key='colour').select('White · move second').run()
+        app.selectbox(key='level').select('Medium').run()
+        app.button(key='new_game').click().run(timeout=30)
+        self.assertEqual(app.session_state['difficulty'], 'Medium')
+        self.assertEqual(app.session_state['history'], ['Computer: cd'])
         self.assertFalse(app.exception)
 
     def test_terminal_board_and_forced_pass(self):
