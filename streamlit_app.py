@@ -63,7 +63,7 @@ def reset():
     st.session_state.cells = engine.initial()
     st.session_state.turn = 'B'
     st.session_state.human = 'B' if st.session_state.colour == 'Black · move first' else 'W'
-    st.session_state.depth = {'Easy': 2, 'Medium': 3, 'Hard': 4}[st.session_state.level]
+    st.session_state.difficulty = st.session_state.level
     st.session_state.history = []
     st.session_state.notice = ''
 
@@ -81,6 +81,8 @@ with st.sidebar:
     st.header('Your game')
     st.selectbox('Play as', ['Black · move first', 'White · move second'], key='colour')
     st.selectbox('Difficulty', ['Easy', 'Medium', 'Hard'], index=2, key='level')
+    st.caption({'Easy': 'Plays random moves.', 'Medium': 'Flips the most discs each turn.',
+                'Hard': 'Plans four moves ahead.'}[st.session_state.level])
     st.button('New game', key='new_game', on_click=reset, use_container_width=True)
     st.caption('Colour and difficulty changes apply when you start a new game.')
     with st.expander('How to play', expanded=True):
@@ -92,6 +94,9 @@ try:
     if 'cells' not in st.session_state:
         reset()
     s = st.session_state
+    # Keep already-open sessions working after deployment of the new modes.
+    if 'difficulty' not in s:
+        s.difficulty = s.level
     # Settle passes and computer turns before accepting another human move.
     with st.spinner('Preparing your next turn…'):
         while True:
@@ -106,7 +111,7 @@ try:
                 continue
             if s.turn == s.human:
                 break
-            result = engine.best(s.cells, s.turn, s.depth)
+            result = engine.computer_move(s.cells, s.turn, s.difficulty)
             s.cells = engine.play(s.cells, s.turn, result.row, result.col)
             s.history.append(f'Computer: {chr(97+result.row)}{chr(97+result.col)}')
             s.turn = engine.other(s.turn)
