@@ -1,0 +1,24 @@
+pair,ai_colour,black,white,result
+1,B,50,14,win
+1,W,0,61,win
+2,B,63,0,win
+2,W,8,55,win
+3,B,58,5,win
+3,W,0,57,win
+4,B,58,6,win
+4,W,7,57,win
+5,B,57,6,win
+5,W,1,48,win
+6,B,59,5,win
+6,W,2,57,win
+7,B,54,10,win
+7,W,7,56,win
+8,B,56,8,win
+8,W,1,60,win
+9,B,49,15,win
+9,W,14,50,win
+10,B,58,6,win
+10,W,0,54,win
+Summary: 20 wins, 0 losses, 0 draws; depth 4; 20 games
+AI decisions: 580; average 2.934 ms; maximum 43.000 ms (C clock)
+Positions searched: 310867; average 536.0/move; cutoffs: 84177

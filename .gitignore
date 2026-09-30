@@ -1,0 +1,14 @@
+build/
+*.exe
+*.o
+.vscode/
+/reversi
+/tests
+/benchmark
+__pycache__/
+*.pyc
+*.zip
+*.dll
+*.so
+.venv/
+.streamlit/secrets.toml
