@@ -12,11 +12,7 @@ the live app link to GitHub's About section. If a live game is linked there,
 open that link to play without installing anything.
 
 A playable 8x8 terminal game with a four-ply minimax opponent, alpha-beta
-pruning, and stage-dependent positional evaluation. Developed from Marc Arthur
-Kentsa's APS105 Reversi lab implementation; this standalone version was refactored
-and extended with AI assistance. The original course interface/starter headers
-were attributed to the APS105H1 Teaching Team. This package uses its own header
-and does not require the course's opponent library.
+pruning, and stage-dependent positional evaluation. 
 
 ## Difficulty modes
 
@@ -25,7 +21,7 @@ All three modes are available in the **same Streamlit app**:
 | Mode | Strategy |
 |---|---|
 | **Easy** | Picks a random legal move, with no lookahead. |
-| **Medium** | Uses the original greedy strategy from Lab 8 Part 1: choose the move that flips the most discs immediately. Ties are resolved in row-major order. |
+| **Medium** |Chooses the move that flips the most discs immediately. Ties are resolved in row-major order. |
 | **Hard** | Uses four-ply minimax with alpha-beta pruning and stage-dependent board evaluation. |
 
 Open the sidebar using the arrow at the upper left, choose **Difficulty**, then
