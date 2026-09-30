@@ -4,6 +4,7 @@ from functools import lru_cache
 import hashlib
 from pathlib import Path
 import platform
+import random
 import shutil
 import subprocess
 import tempfile
@@ -43,6 +44,8 @@ def library():
     lib.playMove.restype = None
     lib.searchBest.argtypes = [Board, ct.c_char, ct.c_int, ct.c_bool]
     lib.searchBest.restype = Result
+    lib.greedyMove.argtypes = [Board, ct.c_char, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)]
+    lib.greedyMove.restype = ct.c_bool
     return lib
 
 
@@ -89,3 +92,20 @@ def best(cells, turn, depth=4):
 
 def other(turn):
     return 'W' if turn == 'B' else 'B'
+
+
+def computer_move(cells, turn, difficulty):
+    """Easy: random. Medium: original max-flips greedy. Hard: alpha-beta."""
+    if difficulty not in ('Easy', 'Medium', 'Hard'):
+        raise ValueError('Invalid difficulty')
+    moves = legal(cells, turn)
+    if not moves:
+        return Result(-1, -1, 0, 0, 0)
+    if difficulty == 'Easy':
+        row, col = random.choice(moves)
+        return Result(row, col, 0, 0, 0)
+    if difficulty == 'Medium':
+        row, col = ct.c_int(-1), ct.c_int(-1)
+        library().greedyMove(native(cells), turn.encode(), ct.byref(row), ct.byref(col))
+        return Result(row.value, col.value, 0, 0, 0)
+    return best(cells, turn, 4)
